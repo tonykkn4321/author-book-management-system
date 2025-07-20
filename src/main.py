@@ -1,6 +1,7 @@
 import os
 from flask import Flask
 from flask import jsonify
+from api.utils.database import db
 
 app = Flask(__name__)
 
@@ -11,7 +12,14 @@ elif os.environ.get('WORK_ENV') == 'TEST':
 else:
     app_config = DevelopmentConfig
 
-app.config.from_object(app_config)
+def create_app(config):
+    app = Flask(__name__)
+    app.config.from_object(config)
+    
+    db.init_app(app)
+    with app.app_context():
+        db.create_all()
+    return app
 
 if __name__ == "__main__":
     app.run(port=5000, host="0.0.0.0", use_reloader=False)
