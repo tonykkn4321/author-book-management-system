@@ -1,5 +1,5 @@
 from api.utils.database import db
-from marshmallow_sqlalchemy import ModelSchema
+from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 from marshmallow import fields
 from api.models.books import BookSchema
 
@@ -21,12 +21,12 @@ class Author(db.Model):
         db.session.commit()
         return self
 
-class AuthorSchema(ModelSchema):
-    class Meta(ModelSchema.Meta):
+class AuthorSchema(SQLAlchemyAutoSchema):
+    class Meta(SQLAlchemyAutoSchema.Meta):
         model = Author
         sqla_session = db.session
 
-    id = fields.Number(dump_only=True)
+    id = fields.Int(dump_only=True)
     first_name = fields.String(required=True)
     last_name = fields.String(required=True)
     created = fields.String(dump_only=True)

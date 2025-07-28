@@ -1,7 +1,9 @@
+from flask import make_response, jsonify
+
 INVALID_FIELD_NAME_SENT_422 = {
     "http_code": 422,
     "code": "invalidField",
-    "message": "Invalid fields found
+    "message": "Invalid fields found"
 }
 
 INVALID_INPUT_422 = {

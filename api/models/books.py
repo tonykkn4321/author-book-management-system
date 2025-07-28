@@ -1,5 +1,5 @@
 from api.utils.database import db
-from marshmallow_sqlalchemy import ModelSchema
+from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 from marshmallow import fields
 
 class Book(db.Model):
@@ -19,8 +19,8 @@ class Book(db.Model):
         db.session.commit()
         return self
 
-class BookSchema(ModelSchema):
-    class Meta(ModelSchema.Meta):
+class BookSchema(SQLAlchemyAutoSchema):
+    class Meta(SQLAlchemyAutoSchema.Meta):
         model = Book
         sqla_session = db.session
         

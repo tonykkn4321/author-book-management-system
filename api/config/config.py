@@ -4,14 +4,14 @@ class Config(object):
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 class ProductionConfig(Config):
-    SQLALCHEMY_DATABASE_URI =  <Production DB URL>
+    SQLALCHEMY_DATABASE_URI =  'mysql+pymysql://root:Aa161616@localhost:3306/mydb'
 
 class DevelopmentConfig(Config):
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI =  <Development DB URL>
+    SQLALCHEMY_DATABASE_URI =  'mysql+pymysql://root:Aa161616@localhost:3306/mydb'
     SQLALCHEMY_ECHO = False
 
 class TestingConfig(Config):
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = <Testing DB URL>
+    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:Aa161616@localhost:3306/mydb'
     SQLALCHEMY_ECHO = False
