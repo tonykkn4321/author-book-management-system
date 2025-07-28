@@ -20,8 +20,7 @@ else:
 
 def create_app():
     app = Flask(__name__)
-    #app.config.from_object(config)
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:Aa161616@localhost:3306/mydb'
+    app.config.from_object(config)
     db.init_app(app)
 
     with app.app_context():
