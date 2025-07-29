@@ -46,3 +46,11 @@ def get_author_list():
     author_schema = AuthorSchema(many=True, only=['first_name', 'last_name','id'])
     authors = author_schema.dump(fetched)
     return response_with(resp.SUCCESS_200, value={"authors": authors})
+
+# GET route to fetch a specific author using their ID 
+@author_routes.route('/<int:author_id>', methods=['GET'])
+def get_author_detail(author_id):
+    fetched = Author.query.get_or_404(author_id)
+    author_schema = AuthorSchema()
+    author = author_schema.dump(fetched)
+    return response_with(resp.SUCCESS_200, value={"author": author})
