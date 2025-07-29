@@ -6,8 +6,8 @@ from api.utils.database import db
 
 author_routes = Blueprint("author_routes", __name__)
 
+# POST authors endpoint 
 @author_routes.route('/', methods=['POST'])
-
 def create_author():
     try:
 
@@ -39,3 +39,10 @@ def create_author():
         print(f"Error creating author: {e}")
         return response_with(resp.INVALID_INPUT_422)
 
+# GET authors endpoint 
+@author_routes.route('/', methods=['GET'])
+def get_author_list():
+    fetched = Author.query.all()
+    author_schema = AuthorSchema(many=True, only=['first_name', 'last_name','id'])
+    authors = author_schema.dump(fetched)
+    return response_with(resp.SUCCESS_200, value={"authors": authors})
