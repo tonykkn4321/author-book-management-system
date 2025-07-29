@@ -8,7 +8,7 @@ class ProductionConfig(Config):
 
 class DevelopmentConfig(Config):
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI =  'mysql+pymysql://root:Aa161616@localhost:3306/mydb'
+    SQLALCHEMY_DATABASE_URI =  'mysql+pymysql://root:Aa161616@localhost:3306/author_book_management_system'
     SQLALCHEMY_ECHO = False
 
 class TestingConfig(Config):
