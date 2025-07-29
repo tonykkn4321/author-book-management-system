@@ -1,5 +1,4 @@
-from flask import Blueprint
-from flask import request
+from flask import Blueprint, request
 from api.utils.responses import response_with
 from api.utils import responses as resp
 from api.models.authors import Author, AuthorSchema
@@ -11,20 +10,29 @@ author_routes = Blueprint("author_routes", __name__)
 
 def create_author():
     try:
-        data = request.get_json()
+
         author_schema = AuthorSchema()
+        
+        if request.is_json:
+            # Handle raw JSON
+            data = request.get_json()
+            author_data = author_schema.load(data)
 
-        # Load and validate data
-        author_data = author_schema.load(data)
+        else:
+            # Handle form-data
+            first_name = request.form.get('first_name')
+            last_name = request.form.get('last_name')
+            author_data = {
+                'first_name': first_name,
+                'last_name': last_name,
+                'books': []  # You can later populate this if form supports it
+            }
 
-        # Create Author instance
         author = Author(**author_data)
         db.session.add(author)
         db.session.commit()
 
-        # Serialize result
         result = author_schema.dump(author)
-
         return response_with(resp.SUCCESS_201, value={"author": result})
 
     except Exception as e:
