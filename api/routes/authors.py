@@ -82,3 +82,11 @@ def modify_author_detail(id):
     author_schema = AuthorSchema()
     author = author_schema.dump(get_author)
     return response_with(resp.SUCCESS_200, value={"author": author})
+
+# DELETE author endpoint which will take the author ID from the request parameter and delete the author object
+@author_routes.route('/<int:id>', methods=['DELETE'])
+def delete_author(id):
+    get_author = Author.query.get_or_404(id)
+    db.session.delete(get_author)
+    db.session.commit()
+    return response_with(resp.SUCCESS_204)
