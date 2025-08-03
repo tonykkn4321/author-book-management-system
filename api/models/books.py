@@ -24,7 +24,7 @@ class BookSchema(SQLAlchemyAutoSchema):
         model = Book
         sqla_session = db.session
         
-    id = fields.Number(dump_only=True)
+    id = fields.Int(dump_only=True)
     title = fields.String(required=True)
     year = fields.Integer(required=True)
     author_id = fields.Integer()

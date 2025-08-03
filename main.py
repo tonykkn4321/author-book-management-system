@@ -5,9 +5,8 @@ from api.utils.responses import response_with
 import api.utils.responses as resp
 from api.models.authors import Author, AuthorSchema
 from api.routes.authors import author_routes
+from api.routes.books import book_routes
 from api.config.config import DevelopmentConfig, ProductionConfig, TestingConfig
-
-
 
 app = Flask(__name__)
 
@@ -30,6 +29,7 @@ def create_app():
 app = create_app()
 
 app.register_blueprint(author_routes, url_prefix='/api/authors')
+app.register_blueprint(book_routes, url_prefix='/api/books')
 
 # START GLOBAL HTTP CONFIGURATIONS
 @app.after_request
