@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Authors & Books API</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    h2 { margin-top: 40px; }
+    form { margin-bottom: 20px; }
+    input, button { margin: 5px; padding: 5px; }
+    .result { background: #f0f0f0; padding: 10px; margin-top: 10px; }
+  </style>
+</head>
+<body>
+
+  <h1>Authors & Books API Interface</h1>
+
+  <!-- Create Author -->
+  <h2>Create Author</h2>
+  <form id="createAuthorForm">
+    <input type="text" name="first_name" placeholder="First Name" required>
+    <input type="text" name="last_name" placeholder="Last Name" required>
+    <button type="submit">Create Author</button>
+  </form>
+
+  <!-- Get All Authors -->
+  <button onclick="getAuthors()">Get All Authors</button>
+  <div id="authorsResult" class="result"></div>
+
+  <!-- Update Author -->
+  <h2>Update Author</h2>
+  <form id="updateAuthorForm">
+    <input type="number" name="id" placeholder="Author ID" required>
+    <input type="text" name="first_name" placeholder="New First Name">
+    <input type="text" name="last_name" placeholder="New Last Name">
+    <button type="submit">Update Author</button>
+  </form>
+
+  <!-- Delete Author -->
+  <h2>Delete Author</h2>
+  <form id="deleteAuthorForm">
+    <input type="number" name="id" placeholder="Author ID" required>
+    <button type="submit">Delete Author</button>
+  </form>
+
+  <!-- Create Book -->
+  <h2>Create Book</h2>
+  <form id="createBookForm">
+    <input type="text" name="title" placeholder="Title" required>
+    <input type="text" name="year" placeholder="Year" required>
+    <input type="number" name="author_id" placeholder="Author ID" required>
+    <button type="submit">Create Book</button>
+  </form>
+
+  <!-- Get All Books -->
+  <button onclick="getBooks()">Get All Books</button>
+  <div id="booksResult" class="result"></div>
+
+  <!-- Update Book -->
+  <h2>Update Book</h2>
+  <form id="updateBookForm">
+    <input type="number" name="id" placeholder="Book ID" required>
+    <input type="text" name="title" placeholder="New Title">
+    <input type="text" name="year" placeholder="New Year">
+    <button type="submit">Update Book</button>
+  </form>
+
+  <!-- Delete Book -->
+  <h2>Delete Book</h2>
+  <form id="deleteBookForm">
+    <input type="number" name="id" placeholder="Book ID" required>
+    <button type="submit">Delete Book</button>
+  </form>
+
+  <script>
+    const apiBase = 'http://localhost:5000/api'; // Change if your API runs elsewhere
+
+    // Helper to convert form data to JSON
+    function formToJSON(form) {
+      const data = new FormData(form);
+      return Object.fromEntries(data.entries());
+    }
+
+    // Create Author
+    document.getElementById('createAuthorForm').onsubmit = async e => {
+      e.preventDefault();
+      const data = formToJSON(e.target);
+      const res = await fetch(`${apiBase}/authors`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      const json = await res.json();
+      alert('Author created!');
+      console.log(json);
+    };
+
+    // Get Authors
+    async function getAuthors() {
+      try {
+        const res = await fetch(`${apiBase}/authors`);
+        
+        if (!res.ok) {
+          throw new Error(`HTTP error! Status: ${res.status}`);
+        }
+
+        const json = await res.json();
+        document.getElementById('authorsResult').innerText = JSON.stringify(json, null, 2);
+      } catch (err) {
+        console.error('Failed to fetch authors:', err);
+        document.getElementById('authorsResult').innerText = `Error: ${err.message}`;
+      }
+    }
+
+    // Update Author
+    document.getElementById('updateAuthorForm').onsubmit = async e => {
+      e.preventDefault();
+      const data = formToJSON(e.target);
+      const id = data.id;
+      delete data.id;
+      const res = await fetch(`${apiBase}/authors/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      const json = await res.json();
+      alert('Author updated!');
+      console.log(json);
+    };
+
+    // Delete Author
+    document.getElementById('deleteAuthorForm').onsubmit = async e => {
+      e.preventDefault();
+      const id = e.target.id.value;
+      await fetch(`${apiBase}/authors/${id}`, { method: 'DELETE' });
+      alert('Author deleted!');
+    };
+
+    // Create Book
+    document.getElementById('createBookForm').onsubmit = async e => {
+      e.preventDefault();
+      const data = formToJSON(e.target);
+      const res = await fetch(`${apiBase}/books`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      const json = await res.json();
+      alert('Book created!');
+      console.log(json);
+    };
+
+    // Get Books
+    async function getBooks() {
+      const res = await fetch(`${apiBase}/books`);
+      const json = await res.json();
+      document.getElementById('booksResult').innerText = JSON.stringify(json, null, 2);
+    }
+
+    // Update Book
+    document.getElementById('updateBookForm').onsubmit = async e => {
+      e.preventDefault();
+      const data = formToJSON(e.target);
+      const id = data.id;
+      delete data.id;
+      const res = await fetch(`${apiBase}/books/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      const json = await res.json();
+      alert('Book updated!');
+      console.log(json);
+    };
+
+    // Delete Book
+    document.getElementById('deleteBookForm').onsubmit = async e => {
+      e.preventDefault();
+      const id = e.target.id.value;
+      await fetch(`${apiBase}/books/${id}`, { method: 'DELETE' });
+      alert('Book deleted!');
+    };
+  </script>
+</body>
+</html>

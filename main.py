@@ -7,8 +7,10 @@ from api.models.authors import Author, AuthorSchema
 from api.routes.authors import author_routes
 from api.routes.books import book_routes
 from api.config.config import DevelopmentConfig, ProductionConfig, TestingConfig
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)  # This enables CORS for all routes
 
 if os.environ.get('WORK_ENV') == 'PROD':
     app_config = ProductionConfig
