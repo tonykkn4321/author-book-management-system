@@ -6,36 +6,25 @@ from api.utils.database import db
 
 book_routes = Blueprint("book_routes", __name__)
 
+def get_request_data():
+    if request.is_json:
+        return request.get_json()
+    else:
+        return request.form
+
+
 #  POST book endpoint
 @book_routes.route('/', methods=['POST'])
 def create_book():
     try:
-
+        data = get_request_data()
         book_schema = BookSchema()
-        
-        if request.is_json:
-            # Handle raw JSON
-            data = request.get_json()
-            book_data = book_schema.load(data)
-
-        else:
-            # Handle form-data
-            title = request.form.get('title')
-            year = request.form.get('year')
-            author_id = request.form.get('author_id')
-            book_data = {
-                'title': title,
-                'year': year,
-                'author_id': author_id
-            }
-
+        book_data = book_schema.load(data)
         book = Book(**book_data)
         db.session.add(book)
         db.session.commit()
-
         result = book_schema.dump(book)
         return response_with(resp.SUCCESS_201, value={"book": result})
-
     except Exception as e:
         print(f"Error creating book: {e}")
         return response_with(resp.INVALID_INPUT_422)
@@ -48,13 +37,21 @@ def get_book_list():
     books = book_schema.dump(fetched)
     return response_with(resp.SUCCESS_200, value={"books": books})
 
+# GET route to fetch a specific book using their ID
+@book_routes.route('/<int:id>', methods=['GET'])
+def get_book_detail(id):
+    fetched = Book.query.get_or_404(id)
+    book_schema = BookSchema()
+    book = book_schema.dump(fetched)
+    return response_with(resp.SUCCESS_200, value={"book": book})
+
 #   PUT books endpoint
 @book_routes.route('/<int:id>', methods=['PUT'])
 def update_book_detail(id):
-    data = request.get_json()
+    data = get_request_data()
     get_book = Book.query.get_or_404(id)
-    get_book.title = data['title']
-    get_book.year = data['year']
+    get_book.title = data.get('title')
+    get_book.year = data.get('year')
     db.session.add(get_book)
     db.session.commit()
     book_schema = BookSchema()
@@ -64,12 +61,12 @@ def update_book_detail(id):
 #   PATCH books endpoint
 @book_routes.route('/<int:id>', methods=['PATCH'])
 def modify_book_detail(id):
-    data = request.get_json()
+    data = get_request_data()
     get_book = Book.query.get_or_404(id)
-    if data.get('title'):
-        get_book.title = data['title']
-    if data.get('year'):
-        get_book.year = data['year']
+    if 'title' in data:
+        get_book.title = data.get('title')
+    if 'year' in data:
+        get_book.year = data.get('year')
     db.session.add(get_book)
     db.session.commit()
     book_schema = BookSchema()

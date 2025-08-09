@@ -6,38 +6,28 @@ from api.utils.database import db
 
 author_routes = Blueprint("author_routes", __name__)
 
+def get_request_data():
+    if request.is_json:
+        return request.get_json()
+    else:
+        return request.form
+
 # POST authors endpoint 
 @author_routes.route('/', methods=['POST'])
 def create_author():
     try:
-
+        data = get_request_data()
         author_schema = AuthorSchema()
-        
-        if request.is_json:
-            # Handle raw JSON
-            data = request.get_json()
-            author_data = author_schema.load(data)
-
-        else:
-            # Handle form-data
-            first_name = request.form.get('first_name')
-            last_name = request.form.get('last_name')
-            author_data = {
-                'first_name': first_name,
-                'last_name': last_name,
-                'books': []  # You can later populate this if form supports it
-            }
-
+        author_data = author_schema.load(data)
         author = Author(**author_data)
         db.session.add(author)
         db.session.commit()
-
         result = author_schema.dump(author)
         return response_with(resp.SUCCESS_201, value={"author": result})
-
     except Exception as e:
         print(f"Error creating author: {e}")
         return response_with(resp.INVALID_INPUT_422)
+
 
 # GET authors endpoint 
 @author_routes.route('/', methods=['GET'])
@@ -58,30 +48,34 @@ def get_author_detail(author_id):
 # PUT endpoint for the author route to update the author object
 @author_routes.route('/<int:id>', methods=['PUT'])
 def update_author_detail(id):
-    data = request.get_json()
+    data = get_request_data()
     get_author = Author.query.get_or_404(id)
-    get_author.first_name = data['first_name']
-    get_author.last_name = data['last_name']
+    get_author.first_name = data.get('first_name')
+    get_author.last_name = data.get('last_name')
     db.session.add(get_author)
     db.session.commit()
     author_schema = AuthorSchema()
     author = author_schema.dump(get_author)
     return response_with(resp.SUCCESS_200, value={"author": author})
 
+
 # PATCH endpoint to update only a part of the author object
 @author_routes.route('/<int:id>', methods=['PATCH'])
 def modify_author_detail(id):
-    data = request.get_json()
+    data = get_request_data()
     get_author = Author.query.get(id)
-    if data.get('first_name'):
-        get_author.first_name = data['first_name']
-    if data.get('last_name'):
-        get_author.last_name = data['last_name']
+    if not get_author:
+        return response_with(resp.NOT_FOUND_404)
+    if 'first_name' in data:
+        get_author.first_name = data.get('first_name')
+    if 'last_name' in data:
+        get_author.last_name = data.get('last_name')
     db.session.add(get_author)
     db.session.commit()
     author_schema = AuthorSchema()
     author = author_schema.dump(get_author)
     return response_with(resp.SUCCESS_200, value={"author": author})
+
 
 # DELETE author endpoint which will take the author ID from the request parameter and delete the author object
 @author_routes.route('/<int:id>', methods=['DELETE'])
