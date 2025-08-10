@@ -12,6 +12,12 @@ def get_request_data():
     else:
         return request.form
 
+# Handle OPTIONS requests globally for this blueprint
+@author_routes.route('/', methods=['OPTIONS'])
+@author_routes.route('/<int:id>', methods=['OPTIONS'])
+def handle_options(id=None):
+    return '', 204
+
 # POST authors endpoint 
 @author_routes.route('/', methods=['POST'])
 def create_author():
@@ -27,7 +33,6 @@ def create_author():
     except Exception as e:
         print(f"Error creating author: {e}")
         return response_with(resp.INVALID_INPUT_422)
-
 
 # GET authors endpoint 
 @author_routes.route('/', methods=['GET'])
@@ -58,7 +63,6 @@ def update_author_detail(id):
     author = author_schema.dump(get_author)
     return response_with(resp.SUCCESS_200, value={"author": author})
 
-
 # PATCH endpoint to update only a part of the author object
 @author_routes.route('/<int:id>', methods=['PATCH'])
 def modify_author_detail(id):
@@ -75,7 +79,6 @@ def modify_author_detail(id):
     author_schema = AuthorSchema()
     author = author_schema.dump(get_author)
     return response_with(resp.SUCCESS_200, value={"author": author})
-
 
 # DELETE author endpoint which will take the author ID from the request parameter and delete the author object
 @author_routes.route('/<int:id>', methods=['DELETE'])

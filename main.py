@@ -10,7 +10,9 @@ from api.config.config import DevelopmentConfig, ProductionConfig, TestingConfig
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)  # This enables CORS for all routes
+
+# Replace '*' with your frontend origin in production
+CORS(app, resources={r"/api/*": {"origins": "https://front-end-page-for-api-endpoint-test.netlify.app"}}, supports_credentials=True)
 
 if os.environ.get('WORK_ENV') == 'PROD':
     app_config = ProductionConfig
@@ -36,7 +38,12 @@ app.register_blueprint(book_routes, url_prefix='/api/books')
 # START GLOBAL HTTP CONFIGURATIONS
 @app.after_request
 def add_header(response):
+    response.headers["Access-Control-Allow-Origin"] = "https://front-end-page-for-api-endpoint-test.netlify.app"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type,Authorization"
+    response.headers["Access-Control-Allow-Methods"] = "GET,POST,PUT,DELETE,OPTIONS"
+    response.headers["Access-Control-Allow-Credentials"] = "true"
     return response
+
 @app.errorhandler(400)
 def bad_request(e):
     logging.error(e)

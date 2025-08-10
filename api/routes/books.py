@@ -12,8 +12,13 @@ def get_request_data():
     else:
         return request.form
 
+# Handle OPTIONS requests globally for this blueprint
+@book_routes.route('/', methods=['OPTIONS'])
+@book_routes.route('/<int:id>', methods=['OPTIONS'])
+def handle_options(id=None):
+    return '', 204
 
-#  POST book endpoint
+# POST book endpoint
 @book_routes.route('/', methods=['POST'])
 def create_book():
     try:
@@ -29,7 +34,7 @@ def create_book():
         print(f"Error creating book: {e}")
         return response_with(resp.INVALID_INPUT_422)
 
-#   GET books endpoint
+# GET books endpoint
 @book_routes.route('/', methods=['GET'])
 def get_book_list():
     fetched = Book.query.all()
@@ -37,7 +42,7 @@ def get_book_list():
     books = book_schema.dump(fetched)
     return response_with(resp.SUCCESS_200, value={"books": books})
 
-# GET route to fetch a specific book using their ID
+# GET route to fetch a specific book using its ID
 @book_routes.route('/<int:id>', methods=['GET'])
 def get_book_detail(id):
     fetched = Book.query.get_or_404(id)
@@ -45,7 +50,7 @@ def get_book_detail(id):
     book = book_schema.dump(fetched)
     return response_with(resp.SUCCESS_200, value={"book": book})
 
-#   PUT books endpoint
+# PUT books endpoint
 @book_routes.route('/<int:id>', methods=['PUT'])
 def update_book_detail(id):
     data = get_request_data()
@@ -58,7 +63,7 @@ def update_book_detail(id):
     book = book_schema.dump(get_book)
     return response_with(resp.SUCCESS_200, value={"book": book})
 
-#   PATCH books endpoint
+# PATCH books endpoint
 @book_routes.route('/<int:id>', methods=['PATCH'])
 def modify_book_detail(id):
     data = get_request_data()
@@ -73,7 +78,7 @@ def modify_book_detail(id):
     book = book_schema.dump(get_book)
     return response_with(resp.SUCCESS_200, value={"book": book})
 
-#   DELETE books endpoint
+# DELETE books endpoint
 @book_routes.route('/<int:id>', methods=['DELETE'])
 def delete_book(id):
     get_book = Book.query.get_or_404(id)
