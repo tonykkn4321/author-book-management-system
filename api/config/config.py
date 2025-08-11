@@ -6,18 +6,16 @@ class Config(object):
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ECHO = False
 
-    # Default to environment variable for flexibility
-    SQLALCHEMY_DATABASE_URI = os.getenv("SQLALCHEMY_DATABASE_URI")
-
-    # Optional: add other shared config values here
+    # Shared secret key
     SECRET_KEY = os.getenv("SECRET_KEY", "your-default-secret-key")
 
 
 class ProductionConfig(Config):
-    # Ensure the URI is set for production
-    SQLALCHEMY_DATABASE_URI = os.getenv("SQLALCHEMY_DATABASE_URI")
-    if not SQLALCHEMY_DATABASE_URI:
-        raise ValueError("Missing SQLALCHEMY_DATABASE_URI for production")
+    # Use Railway's public networking endpoint
+    SQLALCHEMY_DATABASE_URI = os.getenv(
+        "SQLALCHEMY_DATABASE_URI",
+        "mysql+pymysql://root:yourpassword@shinkansen.proxy.rlwy.net:13804/railway"
+    )
 
 
 class DevelopmentConfig(Config):
@@ -30,4 +28,7 @@ class DevelopmentConfig(Config):
 
 class TestingConfig(Config):
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = os.getenv("TEST_DATABASE_URI", "sqlite:///:memory:")
+    SQLALCHEMY_DATABASE_URI = os.getenv(
+        "TEST_DATABASE_URI",
+        "sqlite:///:memory:"
+    )
