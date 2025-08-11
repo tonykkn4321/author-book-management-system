@@ -24,9 +24,6 @@ def create_app():
     app.config.from_object(app_config)
     db.init_app(app)
 
-    with app.app_context():
-        db.create_all()
-
     CORS(app, supports_credentials=True, origins=[
         "https://front-end-page-for-api-endpoint-test.netlify.app/",
         "http://localhost:8000"
@@ -65,9 +62,10 @@ def create_app():
 
     return app
 
-# This is the entry point for Gunicorn
 app = create_app()
 
 # Optional: for local dev
 if __name__ == "__main__":
+    with app.app_context():
+        db.create_all()  # Safe to run locally
     app.run(port=5000, host="0.0.0.0", use_reloader=False)
