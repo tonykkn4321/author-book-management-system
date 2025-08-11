@@ -1,1 +1,4 @@
-web: gunicorn app:app
+# nixpacks.toml
+
+[start]
+cmd = "gunicorn main:app"

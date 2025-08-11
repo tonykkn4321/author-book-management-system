@@ -15,4 +15,5 @@ packaging==25.0
 PyMySQL==1.1.1
 SQLAlchemy==2.0.41
 typing_extensions==4.14.1
+waitress==3.0.2
 Werkzeug==3.1.3
