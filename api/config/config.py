@@ -1,5 +1,6 @@
 import os
 
+
 class Config(object):
     DEBUG = False
     TESTING = False
@@ -11,16 +12,8 @@ class Config(object):
 
 
 class ProductionConfig(Config):
-    SQLALCHEMY_DATABASE_URI = os.getenv(
-        "SQLALCHEMY_DATABASE_URI",
-        "postgresql+psycopg2://{user}:{password}@{host}:{port}/{dbname}".format(
-            user=os.getenv("PGUSER", "your_default_user"),
-            password=os.getenv("PGPASSWORD", "your_default_password"),
-            host=os.getenv("PGHOST", "localhost"),
-            port=os.getenv("PGPORT", "5432"),
-            dbname=os.getenv("PGDATABASE", "your_default_db")
-        )
-    )
+    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL")
+
 
 class DevelopmentConfig(Config):
     DEBUG = True
