@@ -12,9 +12,9 @@ from api.config.config import DevelopmentConfig, ProductionConfig, TestingConfig
 from flask_cors import CORS
 
 # Determine config
-if os.environ.get('WORK_ENV') == 'PROD':
+if os.environ.get('WORK_ENV') == 'production':
     app_config = ProductionConfig
-elif os.environ.get('WORK_ENV') == 'TEST':
+elif os.environ.get('WORK_ENV') == 'test':
     app_config = TestingConfig
 else:
     app_config = DevelopmentConfig
