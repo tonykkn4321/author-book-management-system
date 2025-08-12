@@ -24,6 +24,9 @@ def create_app():
     app.config.from_object(app_config)
     db.init_app(app)
 
+    with app.app_context():
+        db.create_all()  # This runs on every app start
+
     CORS(app, supports_credentials=True, origins=[
         "https://front-end-page-for-api-endpoint-test.netlify.app/",
         "http://localhost:8000"
