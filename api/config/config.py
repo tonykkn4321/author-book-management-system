@@ -11,12 +11,16 @@ class Config(object):
 
 
 class ProductionConfig(Config):
-    # Use Railway's public networking endpoint
     SQLALCHEMY_DATABASE_URI = os.getenv(
         "SQLALCHEMY_DATABASE_URI",
-        "mysql+pymysql://root:yourpassword@shinkansen.proxy.rlwy.net:13804/railway"
+        "postgresql+psycopg2://{user}:{password}@{host}:{port}/{dbname}".format(
+            user=os.getenv("PGUSER", "your_default_user"),
+            password=os.getenv("PGPASSWORD", "your_default_password"),
+            host=os.getenv("PGHOST", "localhost"),
+            port=os.getenv("PGPORT", "5432"),
+            dbname=os.getenv("PGDATABASE", "your_default_db")
+        )
     )
-
 
 class DevelopmentConfig(Config):
     DEBUG = True
