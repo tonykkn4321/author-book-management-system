@@ -12,9 +12,9 @@ from api.config.config import DevelopmentConfig, ProductionConfig, TestingConfig
 from flask_cors import CORS
 
 # Determine config
-if os.environ.get('WORK_ENV') == 'production':
+if os.environ.get('RAILWAY_ENVIRONMENT_NAME') == 'production':
     app_config = ProductionConfig
-elif os.environ.get('WORK_ENV') == 'test':
+elif os.environ.get('RAILWAY_ENVIRONMENT_NAME') == 'test':
     app_config = TestingConfig
 else:
     app_config = DevelopmentConfig
@@ -69,7 +69,5 @@ app = create_app()
 
 # Optional: for local dev
 if __name__ == "__main__":
-    with app.app_context():
-        db.create_all()  # Safe to run locally
     app.run(port=int(os.environ.get("PORT", 8080)), host="0.0.0.0", use_reloader=False)
 
