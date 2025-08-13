@@ -35,6 +35,13 @@ def create_app():
     app.register_blueprint(author_routes, url_prefix='/api/authors')
     app.register_blueprint(book_routes, url_prefix='/api/books')
 
+    @app.route('/api/<path:path>', methods=['OPTIONS'])
+    def options_handler(path):
+        response = jsonify({'message': 'CORS preflight'})
+        response.status_code = 200
+        return response
+
+
     @app.after_request
     def add_header(response):
         origin = request.headers.get("Origin")
@@ -67,7 +74,6 @@ def create_app():
 
 app = create_app()
 
-# Optional: for local dev
 if __name__ == "__main__":
     app.run(port=int(os.environ.get("PORT", 8080)), host="0.0.0.0", use_reloader=False)
 
