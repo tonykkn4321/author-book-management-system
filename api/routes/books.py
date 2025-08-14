@@ -43,7 +43,7 @@ def get_book_list():
     return response_with(resp.SUCCESS_200, value={"books": books})
 
 # GET route to fetch a specific book using its ID
-@book_routes.route('/<int:id>/', methods=['GET'])
+@book_routes.route('/<int:id>', methods=['GET'])
 def get_book_detail(id):
     fetched = Book.query.get_or_404(id)
     book_schema = BookSchema()
@@ -51,7 +51,7 @@ def get_book_detail(id):
     return response_with(resp.SUCCESS_200, value={"book": book})
 
 # PUT books endpoint
-@book_routes.route('/<int:id>/', methods=['PUT'])
+@book_routes.route('/<int:id>', methods=['PUT'])
 def update_book_detail(id):
     data = get_request_data()
     get_book = Book.query.get_or_404(id)
@@ -64,7 +64,7 @@ def update_book_detail(id):
     return response_with(resp.SUCCESS_200, value={"book": book})
 
 # PATCH books endpoint
-@book_routes.route('/<int:id>/', methods=['PATCH'])
+@book_routes.route('/<int:id>', methods=['PATCH'])
 def modify_book_detail(id):
     data = get_request_data()
     get_book = Book.query.get_or_404(id)
@@ -79,7 +79,7 @@ def modify_book_detail(id):
     return response_with(resp.SUCCESS_200, value={"book": book})
 
 # DELETE books endpoint
-@book_routes.route('/<int:id>/', methods=['DELETE'])
+@book_routes.route('/<int:id>', methods=['DELETE'])
 def delete_book(id):
     get_book = Book.query.get_or_404(id)
     db.session.delete(get_book)

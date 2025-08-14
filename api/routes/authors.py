@@ -43,7 +43,7 @@ def get_author_list():
     return response_with(resp.SUCCESS_200, value={"authors": authors})
 
 # GET route to fetch a specific author using their ID 
-@author_routes.route('/<int:author_id>/', methods=['GET'])
+@author_routes.route('/<int:author_id>', methods=['GET'])
 def get_author_detail(author_id):
     fetched = Author.query.get_or_404(author_id)
     author_schema = AuthorSchema()
@@ -51,7 +51,7 @@ def get_author_detail(author_id):
     return response_with(resp.SUCCESS_200, value={"author": author})
 
 # PUT endpoint for the author route to update the author object
-@author_routes.route('/<int:id>/', methods=['PUT'])
+@author_routes.route('/<int:id>', methods=['PUT'])
 def update_author_detail(id):
     data = get_request_data()
     get_author = Author.query.get_or_404(id)
@@ -64,7 +64,7 @@ def update_author_detail(id):
     return response_with(resp.SUCCESS_200, value={"author": author})
 
 # PATCH endpoint to update only a part of the author object
-@author_routes.route('/<int:id>/', methods=['PATCH'])
+@author_routes.route('/<int:id>', methods=['PATCH'])
 def modify_author_detail(id):
     data = get_request_data()
     get_author = Author.query.get(id)
@@ -81,7 +81,7 @@ def modify_author_detail(id):
     return response_with(resp.SUCCESS_200, value={"author": author})
 
 # DELETE author endpoint which will take the author ID from the request parameter and delete the author object
-@author_routes.route('/<int:id>/', methods=['DELETE'])
+@author_routes.route('/<int:id>', methods=['DELETE'])
 def delete_author(id):
     get_author = Author.query.get_or_404(id)
     db.session.delete(get_author)
