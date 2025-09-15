@@ -1,6 +1,7 @@
-from api.utils.database import db
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 from marshmallow import fields
+
+from api.utils.database import db
 
 class Book(db.Model):
     __tablename__ = 'books'

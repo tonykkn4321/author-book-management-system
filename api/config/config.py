@@ -1,6 +1,5 @@
 import os
 
-
 class Config(object):
     DEBUG = False
     TESTING = False
@@ -10,10 +9,8 @@ class Config(object):
     # Shared secret key
     SECRET_KEY = os.getenv("SECRET_KEY", "your-default-secret-key")
 
-
 class ProductionConfig(Config):
     SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL")
-
 
 class DevelopmentConfig(Config):
     DEBUG = True
@@ -21,7 +18,6 @@ class DevelopmentConfig(Config):
         "DEV_DATABASE_URI",
         "mysql+pymysql://root:Aa161616@localhost:3306/author_book_management_system"
     )
-
 
 class TestingConfig(Config):
     TESTING = True

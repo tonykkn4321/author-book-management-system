@@ -1,8 +1,10 @@
 from flask import Blueprint, request
+from flask_jwt_extended import jwt_required
+
 from api.utils.responses import response_with
 from api.utils import responses as resp
-from api.models.authors import Author, AuthorSchema
 from api.utils.database import db
+from api.models.authors import Author, AuthorSchema
 
 author_routes = Blueprint("author_routes", __name__)
 
@@ -20,6 +22,7 @@ def handle_options(id=None):
 
 # POST authors endpoint 
 @author_routes.route('/', methods=['POST'])
+@jwt_required()
 def create_author():
     try:
         data = get_request_data()
@@ -52,6 +55,7 @@ def get_author_detail(author_id):
 
 # PUT endpoint for the author route to update the author object
 @author_routes.route('/<int:id>/', methods=['PUT'])
+@jwt_required()
 def update_author_detail(id):
     data = get_request_data()
     get_author = Author.query.get_or_404(id)
@@ -65,6 +69,7 @@ def update_author_detail(id):
 
 # PATCH endpoint to update only a part of the author object
 @author_routes.route('/<int:id>/', methods=['PATCH'])
+@jwt_required()
 def modify_author_detail(id):
     data = get_request_data()
     get_author = Author.query.get(id)
@@ -82,6 +87,7 @@ def modify_author_detail(id):
 
 # DELETE author endpoint which will take the author ID from the request parameter and delete the author object
 @author_routes.route('/<int:id>/', methods=['DELETE'])
+@jwt_required()
 def delete_author(id):
     get_author = Author.query.get_or_404(id)
     db.session.delete(get_author)

@@ -2,14 +2,17 @@
 
 import os, logging
 from flask import Flask, jsonify, Blueprint, request
-from api.utils.database import db
+from flask_cors import CORS
+from flask_jwt_extended import JWTManager
+
 from api.utils.responses import response_with
 import api.utils.responses as resp
+from api.config.config import DevelopmentConfig, ProductionConfig, TestingConfig
+from api.utils.database import db
 from api.models.authors import Author, AuthorSchema
 from api.routes.authors import author_routes
 from api.routes.books import book_routes
-from api.config.config import DevelopmentConfig, ProductionConfig, TestingConfig
-from flask_cors import CORS
+from api.routes.users import user_routes
 
 # Determine config
 if os.environ.get('RAILWAY_ENVIRONMENT_NAME') == 'production':
@@ -22,6 +25,7 @@ else:
 def create_app():
     app = Flask(__name__)
     app.config.from_object(app_config)
+    jwt = JWTManager(app)
     db.init_app(app)
 
     with app.app_context():
@@ -34,6 +38,7 @@ def create_app():
 
     app.register_blueprint(author_routes, url_prefix='/api/authors')
     app.register_blueprint(book_routes, url_prefix='/api/books')
+    app.register_blueprint(user_routes, url_prefix='/api/users')
 
     @app.route('/api/<path:path>', methods=['OPTIONS'])
     def options_handler(path):
