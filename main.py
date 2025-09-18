@@ -1,6 +1,7 @@
 # main.py
 
 import os, logging
+from dotenv import load_dotenv
 from flask import Flask, jsonify, Blueprint, request
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
@@ -9,10 +10,13 @@ from api.utils.responses import response_with
 import api.utils.responses as resp
 from api.config.config import DevelopmentConfig, ProductionConfig, TestingConfig
 from api.utils.database import db
+from api.utils.email import mail
 from api.models.authors import Author, AuthorSchema
 from api.routes.authors import author_routes
 from api.routes.books import book_routes
 from api.routes.users import user_routes
+
+load_dotenv()
 
 # Determine config
 if os.environ.get('RAILWAY_ENVIRONMENT_NAME') == 'production':
@@ -26,6 +30,7 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(app_config)
     jwt = JWTManager(app)
+    mail.init_app(app)
     db.init_app(app)
 
     with app.app_context():
