@@ -41,7 +41,7 @@ def create_book():
 @book_routes.route('/', methods=['GET'])
 def get_book_list():
     fetched = Book.query.all()
-    book_schema = BookSchema(many=True, only=['author_id','title', 'year', 'id'])
+    book_schema = BookSchema(many=True, only=['id','title', 'year', 'author_id'])
     books = book_schema.dump(fetched)
     return response_with(resp.SUCCESS_200, value={"books": books})
 

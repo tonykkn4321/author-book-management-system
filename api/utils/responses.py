@@ -36,6 +36,12 @@ SERVER_ERROR_404 = {
     "message": "Resource not found"
 }
 
+UNAUTHORIZED_401 = {
+    "http_code": 401,
+    "code": "unauthorized",
+    "message": "Authentication required or token invalid"
+}
+
 UNAUTHORIZED_403 = {
     "http_code": 403,
     "code": "notAuthorized",

@@ -1,0 +1,28 @@
+# Flask secret keys
+SECRET_KEY=your-very-secure-secret-key
+SECURITY_PASSWORD_SALT=your-unique-password-salt
+
+# Database URIs
+DATABASE_URL=mysql+pymysql://user:password@host:port/dbname
+DEV_DATABASE_URI=mysql+pymysql://root:Aa161616@localhost:3306/author_book_management_system
+TEST_DATABASE_URI=sqlite:///:memory:
+
+# Mail configuration
+MAIL_DEFAULT_SENDER=tonykkn4321@gmail.com
+MAIL_SERVER=smtp.gmail.com
+MAIL_PORT=465
+MAIL_USERNAME=tonykkn4321@gmail.com
+MAIL_PASSWORD=bomwwsyrvrlrkwdx
+MAIL_USE_TLS=False
+MAIL_USE_SSL=True
+
+
+# If you're using Gmail, you should generate an App Password instead of using your actual Gmail password. Here's how:
+
+# Enable 2-Step Verification on your Google account.
+
+# Go to Google App Passwords.
+
+# Generate a password for "Mail" and "Other (Custom name)" like "Flask App".
+
+# Use that password in MAIL_PASSWORD

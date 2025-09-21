@@ -26,9 +26,13 @@ class AuthorSchema(SQLAlchemyAutoSchema):
     class Meta(SQLAlchemyAutoSchema.Meta):
         model = Author
         sqla_session = db.session
+        ordered = True  # Ensures fields are serialized in the order they're declared
+        fields = ('id', 'first_name', 'last_name')
 
     id = fields.Int(dump_only=True)
     first_name = fields.String(required=True)
     last_name = fields.String(required=True)
     created = fields.String(dump_only=True)
-    books = fields.Nested(BookSchema, many=True, only=['title','year','id'])
+    books = fields.Nested(BookSchema, many=True, only=['title', 'year', 'id'])
+
+

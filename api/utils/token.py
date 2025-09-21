@@ -1,4 +1,4 @@
-from itsdangerous import URLSafeTimedSerializer
+from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 from flask import current_app
 
 def generate_verification_token(email):
@@ -13,6 +13,7 @@ def confirm_verification_token(token, expiration=3600):
             salt=current_app.config['SECURITY_PASSWORD_SALT'],
             max_age=expiration
         )
-    except Exception as e:
-        return str(e)  # or return None
-    return email
+        return email
+    except (SignatureExpired, BadSignature) as e:
+        # Log or handle specific error types if needed
+        return None

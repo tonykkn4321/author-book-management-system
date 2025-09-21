@@ -90,18 +90,23 @@ def authenticate_user():
 # GET endpoint to handle email validation
 @user_routes.route('/confirm/<token>', methods=['GET'])
 def verify_email(token):
-    try:
-        email = confirm_verification_token(token)
-    except Exception as e:
-        logging.warning(f"Token verification failed: {e}")
-        return response_with(resp.SERVER_ERROR_401, value={"error": "Invalid or expired token."})
+    email = confirm_verification_token(token)
+    if not email:
+        logging.warning(f"Token verification failed or expired for token: {token}")
+        return response_with(resp.UNAUTHORIZED_401, value={"error": "Invalid or expired verification link."})
 
-    user = User.query.filter_by(email=email).first_or_404()
+
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        logging.warning(f"No user found for verified email: {email}")
+        return response_with(resp.SERVER_ERROR_404, value={"error": "User not found."})
 
     if user.isVerified:
+        logging.info(f"Email already verified for user: {user.email}")
         return response_with(resp.INVALID_INPUT_422, value={"error": "Email already verified."})
-    else:
-        user.isVerified = True
-        db.session.add(user)
-        db.session.commit()
-        return response
+
+    user.isVerified = True
+    db.session.commit()
+    logging.info(f"Email successfully verified for user: {user.email}")
+    return response_with(resp.SUCCESS_200, value={"message": "Email successfully verified."})
+
