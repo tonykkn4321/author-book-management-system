@@ -24,9 +24,7 @@ class BookSchema(SQLAlchemyAutoSchema):
     class Meta(SQLAlchemyAutoSchema.Meta):
         model = Book
         sqla_session = db.session
-        ordered = True  # Ensures fields are serialized in the order they're declared
-        fields = ('id', 'title', 'year', 'author_id')
-        
+                
     id = fields.Int(dump_only=True)
     title = fields.String(required=True)
     year = fields.Integer(required=True)

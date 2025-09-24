@@ -1,43 +1,59 @@
-from flask import Blueprint, request
+import os
+import uuid
+from flask import Blueprint, request, url_for, current_app, send_from_directory
 from flask_jwt_extended import jwt_required
+from werkzeug.utils import secure_filename
 
 from api.utils.responses import response_with
 from api.utils import responses as resp
 from api.utils.database import db
 from api.models.authors import Author, AuthorSchema
 
+# Allowed file extensions
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'png', 'jpg', 'jpeg'}
+
+# Blueprint setup
 author_routes = Blueprint("author_routes", __name__)
 
+# Helper to get request data
 def get_request_data():
-    if request.is_json:
-        return request.get_json()
-    else:
-        return request.form
+    return request.get_json() if request.is_json else request.form
 
-# Handle OPTIONS requests globally for this blueprint
+# Serve uploaded avatar files
+@author_routes.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(current_app.config['UPLOAD_FOLDER'], filename)
+
+# Handle OPTIONS requests globally
 @author_routes.route('/', methods=['OPTIONS'])
 @author_routes.route('/<int:id>', methods=['OPTIONS'])
 def handle_options(id=None):
     return '', 204
 
-# POST authors endpoint 
+# Create a new author
 @author_routes.route('/', methods=['POST'])
 @jwt_required()
 def create_author():
     try:
         data = get_request_data()
         author_schema = AuthorSchema()
-        author_data = author_schema.load(data)
-        author = Author(**author_data)
+        
+        # ✅ load_instance=True returns an Author instance directly
+        author = author_schema.load(data)
+        
         db.session.add(author)
         db.session.commit()
+        
         result = author_schema.dump(author)
         return response_with(resp.SUCCESS_201, value={"author": result})
+    
     except Exception as e:
         print(f"Error creating author: {e}")
-        return response_with(resp.INVALID_INPUT_422)
+        return response_with(resp.INVALID_INPUT_422, message="Invalid input")
 
-# GET authors endpoint 
+
+# Get all authors (basic info only)
 @author_routes.route('/', methods=['GET'])
 def get_author_list():
     fetched = Author.query.all()
@@ -45,7 +61,7 @@ def get_author_list():
     authors = author_schema.dump(fetched)
     return response_with(resp.SUCCESS_200, value={"authors": authors})
 
-# GET route to fetch a specific author using their ID 
+# Get author details by ID
 @author_routes.route('/<int:author_id>/', methods=['GET'])
 def get_author_detail(author_id):
     fetched = Author.query.get_or_404(author_id)
@@ -53,7 +69,7 @@ def get_author_detail(author_id):
     author = author_schema.dump(fetched)
     return response_with(resp.SUCCESS_200, value={"author": author})
 
-# PUT endpoint for the author route to update the author object
+# Update full author record (PUT) by ID
 @author_routes.route('/<int:id>/', methods=['PUT'])
 @jwt_required()
 def update_author_detail(id):
@@ -67,7 +83,7 @@ def update_author_detail(id):
     author = author_schema.dump(get_author)
     return response_with(resp.SUCCESS_200, value={"author": author})
 
-# PATCH endpoint to update only a part of the author object
+# Modify partial author record (PATCH) by ID
 @author_routes.route('/<int:id>/', methods=['PATCH'])
 @jwt_required()
 def modify_author_detail(id):
@@ -85,7 +101,7 @@ def modify_author_detail(id):
     author = author_schema.dump(get_author)
     return response_with(resp.SUCCESS_200, value={"author": author})
 
-# DELETE author endpoint which will take the author ID from the request parameter and delete the author object
+# Delete author by ID
 @author_routes.route('/<int:id>/', methods=['DELETE'])
 @jwt_required()
 def delete_author(id):
@@ -93,3 +109,95 @@ def delete_author(id):
     db.session.delete(get_author)
     db.session.commit()
     return response_with(resp.SUCCESS_204)
+
+# Upload or update author avatar image
+@author_routes.route('/avatar/<int:author_id>', methods=['POST'])
+@jwt_required()
+def upsert_author_avatar(author_id):
+    try:
+        # Check if the request contains a file
+        if 'avatar' not in request.files:
+            print("No 'avatar' field found in request.files")
+            return response_with(resp.INVALID_INPUT_422, message="No file part in request")
+
+        file = request.files['avatar']
+
+        # Check if the file has a name
+        if not file or file.filename.strip() == '':
+            print("Empty filename received")
+            return response_with(resp.INVALID_INPUT_422, message="No selected file")
+
+        # Validate file extension
+        if not allowed_file(file.filename):
+            print(f"File type not allowed: {file.filename}")
+            return response_with(resp.INVALID_INPUT_422, message="Invalid file type")
+
+        # Generate a unique filename
+        filename = f"{uuid.uuid4().hex}_{secure_filename(file.filename)}"
+        upload_folder = current_app.config.get('UPLOAD_FOLDER')
+
+        # Ensure the upload folder exists
+        if not upload_folder:
+            print("UPLOAD_FOLDER not configured")
+            return response_with(resp.SERVER_ERROR_500, message="Upload folder not configured")
+
+        if not os.path.exists(upload_folder):
+            os.makedirs(upload_folder)
+
+        # Save the file
+        file_path = os.path.join(upload_folder, filename)
+        file.save(file_path)
+
+        # Update the author's avatar URL
+        get_author = Author.query.get_or_404(author_id)
+        get_author.avatar = url_for('author_routes.uploaded_file', filename=filename, _external=True)
+        db.session.add(get_author)
+        db.session.commit()
+
+        # Return updated author data
+        author_schema = AuthorSchema()
+        author = author_schema.dump(get_author)
+        return response_with(resp.SUCCESS_200, value={"author": author})
+
+    except Exception as e:
+        import traceback
+        print("Avatar upload error:", traceback.format_exc())
+        return response_with(resp.INVALID_INPUT_422, message="Failed to upload avatar")
+
+# Delete author avatar image
+@author_routes.route('/avatar/<int:author_id>', methods=['DELETE'])
+@jwt_required()
+def delete_author_avatar(author_id):
+    try:
+        author = Author.query.get_or_404(author_id)
+
+        # Check if avatar exists
+        if not author.avatar:
+            return response_with(resp.NOT_FOUND_404, message="No avatar to delete")
+
+        # Extract filename from URL
+        avatar_url = author.avatar
+        filename = avatar_url.split('/')[-1]
+        upload_folder = current_app.config.get('UPLOAD_FOLDER')
+        file_path = os.path.join(upload_folder, filename)
+
+        # Delete the file if it exists
+        if os.path.exists(file_path):
+            os.remove(file_path)
+            print(f"Deleted avatar file: {file_path}")
+        else:
+            print(f"Avatar file not found: {file_path}")
+
+        # Remove avatar reference from DB
+        author.avatar = None
+        db.session.add(author)
+        db.session.commit()
+
+        author_schema = AuthorSchema()
+        updated_author = author_schema.dump(author)
+        return response_with(resp.SUCCESS_200, value={"author": updated_author})
+
+    except Exception as e:
+        import traceback
+        print("Avatar deletion error:", traceback.format_exc())
+        return response

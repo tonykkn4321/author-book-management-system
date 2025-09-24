@@ -18,6 +18,9 @@ class Config(object):
     MAIL_USE_TLS = os.getenv("MAIL_USE_TLS", "False") == "True"
     MAIL_USE_SSL = os.getenv("MAIL_USE_SSL", "True") == "True"
 
+    # ✅ Upload folder configuration
+    UPLOAD_FOLDER = os.path.join(os.getcwd(), 'static', 'uploads')
+
 class ProductionConfig(Config):
     SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL")
 
@@ -34,3 +37,6 @@ class TestingConfig(Config):
         "TEST_DATABASE_URI",
         "sqlite:///:memory:"
     )
+
+
+
