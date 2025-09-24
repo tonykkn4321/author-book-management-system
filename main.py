@@ -36,10 +36,15 @@ def create_app():
     with app.app_context():
         db.create_all()  # This runs on every app start
 
+    '''
     CORS(app, supports_credentials=True, origins=[
         "https://front-end-page-for-api-endpoint-test.netlify.app/",
         "http://localhost:8000"
     ])
+    '''
+    
+
+    CORS(app, supports_credentials=True, origins="*")
 
     app.register_blueprint(author_routes, url_prefix='/api/authors')
     app.register_blueprint(book_routes, url_prefix='/api/books')
