@@ -57,7 +57,7 @@ def create_author():
 @author_routes.route('/', methods=['GET'])
 def get_author_list():
     fetched = Author.query.all()
-    author_schema = AuthorSchema(many=True, only=['id', 'first_name', 'last_name'])
+    author_schema = AuthorSchema(many=True, only=['id', 'first_name', 'last_name', 'avatar'])
     authors = author_schema.dump(fetched)
     return response_with(resp.SUCCESS_200, value={"authors": authors})
 
