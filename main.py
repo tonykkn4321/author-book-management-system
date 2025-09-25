@@ -5,6 +5,8 @@ from dotenv import load_dotenv
 from flask import Flask, jsonify, Blueprint, request
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
+from flask_swagger import swagger
+from flask_swagger_ui import get_swaggerui_blueprint
 
 from api.utils.responses import response_with
 import api.utils.responses as resp
@@ -43,12 +45,15 @@ def create_app():
     ])
     '''
     
-
     CORS(app, supports_credentials=True, origins="*")
+
+    SWAGGER_URL = '/api/docs'
 
     app.register_blueprint(author_routes, url_prefix='/api/authors')
     app.register_blueprint(book_routes, url_prefix='/api/books')
     app.register_blueprint(user_routes, url_prefix='/api/users')
+    swaggerui_blueprint = get_swaggerui_blueprint('/api/docs', '/api/spec', config={'app_name': "Flask Author Book Management System"})
+    app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 
     @app.route('/api/<path:path>', methods=['OPTIONS'])
     def options_handler(path):
@@ -87,6 +92,14 @@ def create_app():
     def not_found(e):
         logging.error(e)
         return response_with(resp.SERVER_ERROR_404)
+    
+    @app.route("/api/spec")
+    def spec():
+        swag = swagger(app, prefix='/api')
+        swag['info']['base'] = "http://localhost:5000"
+        swag['info']['version'] = "1.0"
+        swag['info']['title'] = "Flask Author Book Management System"
+        return jsonify(swag)
 
     return app
 

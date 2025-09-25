@@ -34,20 +34,45 @@ def handle_options(id=None):
 # Create a new author
 @author_routes.route('/', methods=['POST'])
 @jwt_required()
-def create_author():
+def create_author(): 
+    """
+    Create a new author
+
+    ---
+    tags:
+      - Authors
+    security:
+      - Bearer: []
+    parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          id: AuthorCreate
+          required:
+            - first_name
+            - last_name
+          properties:
+            first_name:
+              type: string
+              example: "Jane"
+            last_name:
+              type: string
+              example: "Austen"
+    responses:
+      201:
+        description: Author created successfully
+      422:
+        description: Invalid input
+    """
     try:
         data = get_request_data()
         author_schema = AuthorSchema()
-        
-        # ✅ load_instance=True returns an Author instance directly
         author = author_schema.load(data)
-        
         db.session.add(author)
         db.session.commit()
-        
         result = author_schema.dump(author)
         return response_with(resp.SUCCESS_201, value={"author": result})
-    
     except Exception as e:
         print(f"Error creating author: {e}")
         return response_with(resp.INVALID_INPUT_422, message="Invalid input")
@@ -56,14 +81,82 @@ def create_author():
 # Get all authors (basic info only)
 @author_routes.route('/', methods=['GET'])
 def get_author_list():
+    """
+    Get all authors
+
+    ---
+    tags:
+      - Authors
+    summary: Retrieve a list of all authors with basic information
+    responses:
+      200:
+        description: A list of authors with ID, first name, last name, and avatar URL
+        schema:
+          type: object
+          properties:
+            authors:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                  first_name:
+                    type: string
+                    example: "Jane"
+                  last_name:
+                    type: string
+                    example: "Austen"
+                  avatar:
+                    type: string
+                    example: "https://yourdomain.com/api/authors/uploads/avatar123.jpg"
+    """
     fetched = Author.query.all()
-    author_schema = AuthorSchema(many=True, only=['id', 'first_name', 'last_name', 'avatar'])
+    author_schema = AuthorSchema(many=True, only=['id', 'first_name', 'last_name', 'avatar', 'books'])
     authors = author_schema.dump(fetched)
     return response_with(resp.SUCCESS_200, value={"authors": authors})
+
 
 # Get author details by ID
 @author_routes.route('/<int:author_id>/', methods=['GET'])
 def get_author_detail(author_id):
+    """
+    Retrieve author details by ID
+
+    ---
+    tags:
+      - Authors
+    parameters:
+      - in: path
+        name: author_id
+        required: true
+        type: integer
+        description: ID of the author to retrieve
+    responses:
+      200:
+        description: Author details retrieved successfully
+        schema:
+          type: object
+          properties:
+            author:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  example: 1
+                first_name:
+                  type: string
+                  example: "Jane"
+                last_name:
+                  type: string
+                  example: "Austen"
+                avatar:
+                  type: string
+                  example: "https://yourdomain.com/api/authors/uploads/avatar123.jpg"
+      404:
+        description: Author not found
+    """
     fetched = Author.query.get_or_404(author_id)
     author_schema = AuthorSchema()
     author = author_schema.dump(fetched)
@@ -73,6 +166,46 @@ def get_author_detail(author_id):
 @author_routes.route('/<int:id>/', methods=['PUT'])
 @jwt_required()
 def update_author_detail(id):
+    """
+    Update full author record
+
+    ---
+    tags:
+      - Authors
+    security:
+      - Bearer: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        type: integer
+        description: ID of the author to update
+      - in: body
+        name: body
+        required: true
+        schema:
+          type: object
+          required:
+            - first_name
+            - last_name
+          properties:
+            first_name:
+              type: string
+              example: "Emily"
+            last_name:
+              type: string
+              example: "Bronte"
+    responses:
+      200:
+        description: Author updated successfully
+        schema:
+          type: object
+          properties:
+            author:
+              type: object
+      404:
+        description: Author not found
+    """
     data = get_request_data()
     get_author = Author.query.get_or_404(id)
     get_author.first_name = data.get('first_name')
@@ -83,10 +216,48 @@ def update_author_detail(id):
     author = author_schema.dump(get_author)
     return response_with(resp.SUCCESS_200, value={"author": author})
 
+
 # Modify partial author record (PATCH) by ID
 @author_routes.route('/<int:id>/', methods=['PATCH'])
 @jwt_required()
 def modify_author_detail(id):
+    """
+    Modify partial author record
+
+    ---
+    tags:
+      - Authors
+    security:
+      - Bearer: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        type: integer
+        description: ID of the author to modify
+      - in: body
+        name: body
+        required: true
+        schema:
+          type: object
+          properties:
+            first_name:
+              type: string
+              example: "Leo"
+            last_name:
+              type: string
+              example: "Tolstoy"
+    responses:
+      200:
+        description: Author modified successfully
+        schema:
+          type: object
+          properties:
+            author:
+              type: object
+      404:
+        description: Author not found
+    """
     data = get_request_data()
     get_author = Author.query.get(id)
     if not get_author:
@@ -105,15 +276,72 @@ def modify_author_detail(id):
 @author_routes.route('/<int:id>/', methods=['DELETE'])
 @jwt_required()
 def delete_author(id):
+    """
+    Delete author by ID
+
+    ---
+    tags:
+      - Authors
+    security:
+      - Bearer: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        type: integer
+        description: ID of the author to delete
+    responses:
+      204:
+        description: Author deleted successfully
+      404:
+        description: Author not found
+    """
     get_author = Author.query.get_or_404(id)
     db.session.delete(get_author)
     db.session.commit()
     return response_with(resp.SUCCESS_204)
 
+
 # Upload or update author avatar image
 @author_routes.route('/avatar/<int:author_id>', methods=['POST'])
 @jwt_required()
 def upsert_author_avatar(author_id):
+
+    """
+    Upload or update author avatar
+
+    ---
+    tags:
+      - Authors
+    security:
+      - Bearer: []
+    consumes:
+      - multipart/form-data
+    parameters:
+      - in: path
+        name: author_id
+        required: true
+        type: integer
+        description: ID of the author whose avatar is being uploaded
+      - in: formData
+        name: avatar
+        type: file
+        required: true
+        description: Avatar image file (png, jpg, jpeg)
+    responses:
+      200:
+        description: Avatar uploaded and author updated successfully
+        schema:
+          type: object
+          properties:
+            author:
+              type: object
+      422:
+        description: Invalid input or file type
+      500:
+        description: Upload folder not configured
+    """
+
     try:
         # Check if the request contains a file
         if 'avatar' not in request.files:
@@ -168,6 +396,34 @@ def upsert_author_avatar(author_id):
 @author_routes.route('/avatar/<int:author_id>', methods=['DELETE'])
 @jwt_required()
 def delete_author_avatar(author_id):
+    
+    """
+    Delete author avatar
+
+    ---
+    tags:
+      - Authors
+    security:
+      - Bearer: []
+    parameters:
+      - in: path
+        name: author_id
+        required: true
+        type: integer
+        description: ID of the author whose avatar is being deleted
+    responses:
+      200:
+        description: Avatar deleted and author updated successfully
+        schema:
+          type: object
+          properties:
+            author:
+              type: object
+      404:
+        description: Avatar not found or author does not exist
+    """
+    # [function body unchanged]
+
     try:
         author = Author.query.get_or_404(author_id)
 

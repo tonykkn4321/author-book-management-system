@@ -14,6 +14,53 @@ user_routes = Blueprint("user_routes", __name__)
 # POST user route to create a new user
 @user_routes.route('/', methods=['POST'])
 def create_user():
+
+    """
+    Create a new user
+
+    ---
+    tags:
+      - Users
+    parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          id: UserSignup
+          required:
+            - username
+            - password
+            - email
+          properties:
+            username:
+              type: string
+              description: Unique username of the user
+              default: "Johndoe"
+            password:
+              type: string
+              description: Password of the user
+              default: "somethingstrong"
+            email:
+              type: string
+              description: Email of the user
+              default: "someemail@provider.com"
+    responses:
+      201:
+        description: User successfully created
+        schema:
+          id: UserSignUpSchema
+          properties:
+            user:
+              type: object
+      422:
+        description: Invalid input arguments
+        schema:
+          id: InvalidInput
+          properties:
+            error:
+              type: string
+    """
+
     try:
         data = request.get_json()
 
@@ -51,10 +98,85 @@ def create_user():
     except Exception as e:
         logging.exception("Error creating user")
         return response_with(resp.INVALID_INPUT_422, value={"error": str(e)})
-
+    
 # Create a login route for the signed up users to login
 @user_routes.route('/login', methods=['POST'])
 def authenticate_user():
+    """
+    User Login
+
+    ---
+    tags:
+      - Users
+    summary: Authenticate user and return JWT token
+    description: Allows a registered and verified user to log in using either email or username and receive a JWT access token.
+    parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          id: UserLogin
+          required:
+            - password
+          properties:
+            email:
+              type: string
+              description: Email of the user
+              example: "someemail@provider.com"
+            username:
+              type: string
+              description: Username of the user
+              example: "Johndoe"
+            password:
+              type: string
+              description: Password of the user
+              example: "somethingstrong"
+    responses:
+      201:
+        description: User successfully authenticated
+        schema:
+          id: LoginSuccess
+          properties:
+            message:
+              type: string
+              example: "Logged in as Johndoe"
+            access_token:
+              type: string
+              description: JWT access token
+      400:
+        description: Email not verified
+        schema:
+          id: EmailNotVerified
+          properties:
+            error:
+              type: string
+              example: "Email not verified."
+      401:
+        description: Invalid password or expired token
+        schema:
+          id: Unauthorized
+          properties:
+            error:
+              type: string
+              example: "Invalid password."
+      404:
+        description: User not found
+        schema:
+          id: UserNotFound
+          properties:
+            error:
+              type: string
+              example: "User not found."
+      422:
+        description: Invalid input
+        schema:
+          id: InvalidInput
+          properties:
+            error:
+              type: string
+              example: "Email or username is required."
+    """
+ 
     try:
         data = request.get_json()
 
@@ -90,6 +212,55 @@ def authenticate_user():
 # GET endpoint to handle email validation
 @user_routes.route('/confirm/<token>', methods=['GET'])
 def verify_email(token):
+    """
+    Verify Email
+
+    ---
+    tags:
+      - Users
+    summary: Verify user's email using token
+    description: Confirms the user's email address using a token sent via email.
+    parameters:
+      - in: path
+        name: token
+        required: true
+        type: string
+        description: Verification token sent to the user's email
+    responses:
+      200:
+        description: Email successfully verified
+        schema:
+          id: EmailVerified
+          properties:
+            message:
+              type: string
+              example: "Email successfully verified."
+      401:
+        description: Invalid or expired token
+        schema:
+          id: InvalidToken
+          properties:
+            error:
+              type: string
+              example: "Invalid or expired verification link."
+      404:
+        description: User not found
+        schema:
+          id: UserNotFound
+          properties:
+            error:
+              type: string
+              example: "User not found."
+      422:
+        description: Email already verified
+        schema:
+          id: AlreadyVerified
+          properties:
+            error:
+              type: string
+              example: "Email already verified."
+    """
+
     email = confirm_verification_token(token)
     if not email:
         logging.warning(f"Token verification failed or expired for token: {token}")
