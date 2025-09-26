@@ -196,7 +196,7 @@ def authenticate_user():
         if User.verify_hash(data['password'], current_user.password):
             access_token = create_access_token(identity=current_user.username)
             return response_with(
-                resp.SUCCESS_201,
+                resp.SUCCESS_200,
                 value={
                     'message': f'Logged in as {current_user.username}',
                     'access_token': access_token

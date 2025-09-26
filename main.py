@@ -28,7 +28,7 @@ elif os.environ.get('RAILWAY_ENVIRONMENT_NAME') == 'test':
 else:
     app_config = DevelopmentConfig
 
-def create_app():
+def create_app(app_config):
     app = Flask(__name__)
     app.config.from_object(app_config)
     jwt = JWTManager(app)
@@ -103,7 +103,8 @@ def create_app():
 
     return app
 
-app = create_app()
+# Create app using selected config
+app = create_app(app_config)
 
 if __name__ == "__main__":
     app.run(port=int(os.environ.get("PORT", 8080)), host="0.0.0.0", use_reloader=False)
