@@ -51,15 +51,6 @@ class TestingConfig(Config):
     # Propagate exceptions to help with debugging
     PROPAGATE_EXCEPTIONS = True
 
-    # Mail settings
-    MAIL_DEFAULT_SENDER = os.getenv("MAIL_DEFAULT_SENDER", "your_email_address")
-    MAIL_SERVER = os.getenv("MAIL_SERVER", "smtp.example.com")
-    MAIL_PORT = int(os.getenv("MAIL_PORT", 465))
-    MAIL_USERNAME = os.getenv("MAIL_USERNAME", "your_email_address")
-    MAIL_PASSWORD = os.getenv("MAIL_PASSWORD", "your_email_password")
-    MAIL_USE_TLS = os.getenv("MAIL_USE_TLS", "False") == "True"
-    MAIL_USE_SSL = os.getenv("MAIL_USE_SSL", "True") == "True"
-
     # Upload folder (can be mocked or redirected)
     UPLOAD_FOLDER = os.path.join(os.getcwd(), 'static', 'test_uploads')
 

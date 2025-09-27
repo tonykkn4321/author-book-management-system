@@ -196,7 +196,7 @@ def authenticate_user():
         if User.verify_hash(data['password'], current_user.password):
             access_token = create_access_token(identity=current_user.username)
             return response_with(
-                resp.SUCCESS_200,
+                resp.SUCCESS_201,
                 value={
                     'message': f'Logged in as {current_user.username}',
                     'access_token': access_token
@@ -275,6 +275,7 @@ def verify_email(token):
     if user.isVerified:
         logging.info(f"Email already verified for user: {user.email}")
         return response_with(resp.INVALID_INPUT_422, value={"error": "Email already verified."})
+    
 
     user.isVerified = True
     db.session.commit()
