@@ -303,7 +303,7 @@ def delete_author(id):
 
 
 # Upload or update author avatar image
-@author_routes.route('/avatar/<int:author_id>', methods=['POST'])
+@author_routes.route('/avatar/<int:author_id>/', methods=['POST'])
 @jwt_required()
 def upsert_author_avatar(author_id):
 
