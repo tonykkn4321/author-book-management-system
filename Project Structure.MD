@@ -1,4 +1,40 @@
 # Project structure:
+author-book-management-system/
+│
+├── main.py                 # Entry point for the app (e.g. FastAPI instance)
+├── run.py                  # Script to launch the server (e.g. uvicorn runner)
+│
+├── api/
+│   ├── config/             # Configuration settings
+│   │   ├── __init__.py
+│   │   └── config.py
+│   │
+│   ├── models/             # ORM models for authors, books, users
+│   │   ├── __init__.py
+│   │   ├── authors.py
+│   │   ├── books.py
+│   │   └── users.py
+│   │
+│   ├── routes/             # API route handlers
+│   │   ├── __init__.py
+│   │   ├── authors.py
+│   │   ├── books.py
+│   │   └── users.py
+│   │
+│   ├── utils/              # Helper functions and shared logic
+│   │   ├── __init__.py
+│   │   ├── database.py
+│   │   ├── email.py
+│   │   ├── responses.py
+│   │   ├── test_base.py
+│   │   └── token.py
+│   │
+│   └── tests/              # All test files
+│       ├── test_authors.py
+│       └── test_users.py
+│
+└── __pycache__/            # Auto-generated compiled Python files
+
 
 
 # Run the app:
