@@ -8,6 +8,9 @@ from flask_jwt_extended import JWTManager
 from flask_swagger import swagger
 from flask_swagger_ui import get_swaggerui_blueprint
 
+# Mnnitoring Packages:
+import sentry_sdk
+
 from api.utils.responses import response_with
 import api.utils.responses as resp
 from api.config.config import DevelopmentConfig, ProductionConfig, TestingConfig
@@ -29,6 +32,15 @@ else:
     app_config = DevelopmentConfig
 
 def create_app(app_config):
+
+    # Initialize Sentry
+    sentry_sdk.init(
+        dsn="https://1a2bad50c8e9301441ea1bb0099f6ee6@o4510117421514752.ingest.us.sentry.io/4510117450940416",
+        # Add data like request headers and IP for users,
+        # see https://docs.sentry.io/platforms/python/data-management/data-collected/ for more info
+        send_default_pii=True,
+    )
+
     app = Flask(__name__)
     app.config.from_object(app_config)
     jwt = JWTManager(app)
