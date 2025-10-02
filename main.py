@@ -10,7 +10,9 @@ from flask_swagger_ui import get_swaggerui_blueprint
 
 # Mnnitoring Packages:
 import sentry_sdk
+import flask_monitoringdashboard as dashboard
 
+# Import Internal Modules:
 from api.utils.responses import response_with
 import api.utils.responses as resp
 from api.config.config import DevelopmentConfig, ProductionConfig, TestingConfig
@@ -117,6 +119,9 @@ def create_app(app_config):
 
 # Create app using selected config
 app = create_app(app_config)
+
+# Bind the app for Flask Monitoring Dashboard
+dashboard.bind(app)
 
 if __name__ == "__main__":
     app.run(port=int(os.environ.get("PORT", 8080)), host="0.0.0.0", use_reloader=False)
